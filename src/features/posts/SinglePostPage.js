@@ -1,4 +1,5 @@
 import {useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 
 export default function SinglePostPage({match}) {
     const { postId } = match.params
@@ -20,6 +21,7 @@ export default function SinglePostPage({match}) {
                 <article className='post'>
                     <h2>{post.title}</h2>
                     <p className='post-content'>{post.content}</p>
+                    <Link to={`/editPost/${postId}`} className='button'>Edit Post</Link>
                 </article>
             </section>
         );
