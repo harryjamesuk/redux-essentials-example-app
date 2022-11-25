@@ -3,20 +3,24 @@ import {useDispatch, useSelector} from "react-redux";
 import {postUpdated} from "./postsSlice";
 import {nanoid} from "@reduxjs/toolkit";
 import {useHistory} from "react-router-dom/cjs/react-router-dom";
+import PostAuthor from "./PostAuthor";
 
 export default function EditPostForm({match}) {
     const { postId } = match.params;
     const post = useSelector(state =>
         state.posts.find(post => post.id === postId)
     );
+    const users = useSelector(state => state.users);
 
     const [title, setTitle] = React.useState(post.title);
     const [content, setContent] = React.useState(post.content);
+    const [author, setAuthor] = React.useState(post.user);
 
     const dispatch = useDispatch();
     const history = useHistory();
 
     const onTitleChanged = e => setTitle(e.target.value);
+    const onAuthorChanged = e => setAuthor(e.target.value);
     const onContentChanged = e => setContent(e.target.value);
 
     const onSavePostClicked = () => {
@@ -32,6 +36,10 @@ export default function EditPostForm({match}) {
         }
     };
 
+    const userOptions = users.map(user => (
+        <option key={user.id} value={user.id}>{user.name}</option>
+    ));
+
     return (
         <section>
             <h2>Edit Post</h2>
@@ -44,6 +52,11 @@ export default function EditPostForm({match}) {
                     value={title}
                     onChange={onTitleChanged}
                 />
+                <label htmlFor='postAuthor'>Author:</label>
+                <select value={author} onChange={onAuthorChanged}>
+                    <option value=''></option>
+                    {userOptions}
+                </select>
                 <label htmlFor='postContent'>Content:</label>
                 <textarea
                     id='postContent'

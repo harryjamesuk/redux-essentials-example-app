@@ -1,10 +1,13 @@
 import React from 'react';
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {postAdded} from "./postsSlice";
 
 export default function AddPostForm() {
     const [title, setTitle] = React.useState('');
     const [content, setContent] = React.useState('');
+    const [userId, setUserId] = React.useState('');
+
+    const users = useSelector(state => state.users);
 
     const dispatch = useDispatch();
 
@@ -13,12 +16,18 @@ export default function AddPostForm() {
 
     const onSavePostClicked = () => {
         if (title && content) {
-            dispatch(postAdded(title, content));
+            dispatch(postAdded(title, content, userId));
 
             setTitle('');
             setContent('');
         }
     };
+
+    const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
+
+    const userOptions = users.map(user => (
+        <option key={user.id} value={user.id}>{user.name}</option>
+    ));
 
     return (
         <section>
@@ -32,6 +41,11 @@ export default function AddPostForm() {
                     value={title}
                     onChange={onTitleChanged}
                 />
+                <label htmlFor='postAuthor'>Author:</label>
+                <select>
+                    <option value=''></option>
+                    {userOptions}
+                </select>
                 <label htmlFor='postContent'>Content:</label>
                 <textarea
                     id='postContent'
@@ -39,7 +53,7 @@ export default function AddPostForm() {
                     value={content}
                     onChange={onContentChanged}
                 />
-                <button type='button' onClick={onSavePostClicked}>Save Post</button>
+                <button type='button' onClick={onSavePostClicked} disabled={!canSave}>Save Post</button>
             </form>
         </section>
     );
