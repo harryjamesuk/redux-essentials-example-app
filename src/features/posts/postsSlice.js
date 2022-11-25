@@ -1,4 +1,4 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice, nanoid} from "@reduxjs/toolkit";
 
 const initialState = [
     { id: '1', title: 'First Post!', content: 'Hello!' },
@@ -9,9 +9,19 @@ const postsSlice = createSlice({
     name: 'posts',
     initialState,
     reducers: {
-        postAdded(state, action) {
-            // createSlice automatically generates an 'action creator' function with the same name! (posts/postAdded)
-            state.push(action.payload); // Mutation allowed because inside createSlice() / uses Immer
+        postAdded: {
+            reducer(state, action) {
+                state.push(action.payload)
+            },
+            prepare(title, content) {
+                return {
+                    payload: {
+                        id: nanoid(),
+                        title,
+                        content
+                    }
+                }
+            }
         },
         postUpdated(state, action) {
             const { id, title, content } = action.payload
