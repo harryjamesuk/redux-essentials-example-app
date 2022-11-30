@@ -1,20 +1,15 @@
 import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
-import PostAuthor from "./PostAuthor";
-import TimeAgo from "./TimeAgo";
-import ReactionButtons from "./ReactionButtons";
 import {fetchPosts, selectAllPosts} from "./postsSlice";
 import {useEffect} from "react";
+import PostExcerpt from "./PostExcerpt";
+import {Spinner} from "../../components/Spinner";
 
 export default function PostsList() {
     const dispatch = useDispatch();
 
     const posts = useSelector(selectAllPosts);
     const postStatus = useSelector(state => state.posts.status);
-    // We must use .slice() to generate a copy, so we don't cause a direct mutation:
-    const orderedPosts = posts.slice().sort((a, b) =>
-        b.date.localeCompare(a.date)
-    );
+    const error = useSelector(state => state.posts.error);
 
     useEffect(() => {
         if (postStatus === 'idle') {
@@ -22,23 +17,25 @@ export default function PostsList() {
         }
     }, [postStatus, dispatch]);
 
-    const renderedPosts = orderedPosts.map(post => (
-        <article className="post-excerpt" key={post.id}>
-            <h3>{post.title}</h3>
-            <TimeAgo timestamp={post.date}/>
-            <p className="post-content">{post.content.substring(0, 100)}</p>
-            <PostAuthor userId={post.user}/>
-            <ReactionButtons post={post} />
-            <Link to={`/posts/${post.id}`} className='button muted-button'>
-                View Post
-            </Link>
-        </article>
-    ));
+    let content;
+    if (postStatus === 'loading') {
+        content = <Spinner text='Loading...' />
+    } else if (postStatus === 'succeeded') {
+        /* Sort posts in reverse chronological order by datetime string
+        We must use .slice() to generate a copy, so we don't cause a direct mutation: */
+        const orderedPosts = posts.slice().sort((a, b) =>
+            b.date.localeCompare(a.date)
+        );
+
+        content = orderedPosts.map(post => <PostExcerpt post={post}/>);
+    } else if (postStatus === 'failed') {
+        content = <div>{error}</div>
+    }
 
     return (
         <section className="posts-list">
             <h2>Posts</h2>
-            {renderedPosts}
+            {content}
         </section>
     );
 };
