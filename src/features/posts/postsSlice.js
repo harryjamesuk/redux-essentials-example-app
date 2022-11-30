@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice, nanoid} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {client} from "../../api/client";
 
 const initialState = {
@@ -19,33 +19,17 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async() => {
     return response.data; // response object looks like {data: []}
 });
 
+export const addNewPost = createAsyncThunk('posts/addNewPost',
+    async (initialPost) => {
+        const response = await client.post('/fakeApi/posts', initialPost); // Send our initial post data.
+        return response.data; // Return server's complete post object, including unique ID.
+    }
+);
+
 const postsSlice = createSlice({
     name: 'posts',
     initialState,
     reducers: {
-        postAdded: {
-            reducer(state, action) {
-                state.posts.push(action.payload)
-            },
-            prepare(title, content, userId) {
-                return {
-                    payload: {
-                        id: nanoid(),
-                        date: new Date().toISOString(),
-                        title,
-                        content,
-                        user: userId,
-                        reactions: {
-                            thumbsUp: 0,
-                            hooray: 0,
-                            heart: 0,
-                            rocket: 0,
-                            eyes: 0
-                        }
-                    }
-                }
-            }
-        },
         postUpdated(state, action) {
             const { id, title, content } = action.payload
             const existingPost = selectAllPostsById(state, id);
@@ -79,6 +63,9 @@ const postsSlice = createSlice({
             .addCase(fetchPosts.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+            })
+            .addCase(addNewPost.fulfilled, (state, action) => {
+                state.posts.push(action.payload); // Directly add new post object (mutation is fine because of Immer!)
             })
     }
 });

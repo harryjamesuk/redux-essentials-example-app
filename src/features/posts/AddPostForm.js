@@ -1,11 +1,12 @@
 import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {postAdded} from "./postsSlice";
+import {addNewPost} from "./postsSlice";
 
 export default function AddPostForm() {
     const [title, setTitle] = React.useState('');
     const [content, setContent] = React.useState('');
     const [userId, setUserId] = React.useState('');
+    const [addRequestStatus, setAddRequestStatus] = React.useState('idle');
 
     const users = useSelector(state => state.users);
 
@@ -15,16 +16,34 @@ export default function AddPostForm() {
     const onContentChanged = e => setContent(e.target.value);
     const onAuthorChanged = e => setUserId(e.target.value);
 
-    const onSavePostClicked = () => {
-        if (title && content) {
-            dispatch(postAdded(title, content, userId));
+    const canSave = [title, content, userId].every(Boolean) && addRequestStatus === 'idle';
 
-            setTitle('');
-            setContent('');
+    const onSavePostClicked = async() => {
+        if (canSave) {
+            try {
+                /* We can setAddRequestStatus() here instead, which means we don't need to rely on external state.
+                This means we don't need a useEffect() hook.
+                 */
+                setAddRequestStatus('pending');
+                /*
+                createAsyncThunk handles errors internally and returns the final action it dispatched; either
+                fulfilled or rejected.
+                If we want to look at the success of failure from this scope, we must use .unwrap() from
+                Redux Toolkit, which will return a new Promise that has either the action.payload, or throws
+                an error if it's the rejected action, allowing us to use normal try/catch logic.
+                 */
+                await dispatch(addNewPost({ title, content, user: userId })).unwrap();
+
+                setTitle('');
+                setContent('');
+                setUserId('');
+            } catch (e) {
+                console.error('Failed to save the post: ', e);
+            } finally {
+                setAddRequestStatus('idle'); // only checking if in progress or not.
+            }
         }
     };
-
-    const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
 
     const userOptions = users.map(user => (
         <option key={user.id} value={user.id}>{user.name}</option>
