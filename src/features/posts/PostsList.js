@@ -3,9 +3,10 @@ import {Link} from "react-router-dom";
 import PostAuthor from "./PostAuthor";
 import TimeAgo from "./TimeAgo";
 import ReactionButtons from "./ReactionButtons";
+import {selectAllPosts} from "./postsSlice";
 
 export default function PostsList() {
-    const posts = useSelector(state => state.posts);
+    const posts = useSelector(selectAllPosts);
     // We must use .slice() to generate a copy, so we don't cause a direct mutation:
     const orderedPosts = posts.slice().sort((a, b) =>
         b.date.localeCompare(a.date)

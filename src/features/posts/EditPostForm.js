@@ -1,14 +1,12 @@
 import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {postUpdated} from "./postsSlice";
+import {postUpdated, selectAllPostsById} from "./postsSlice";
 import {nanoid} from "@reduxjs/toolkit";
 import {useHistory} from "react-router-dom/cjs/react-router-dom";
 
 export default function EditPostForm({match}) {
     const { postId } = match.params;
-    const post = useSelector(state =>
-        state.posts.find(post => post.id === postId)
-    );
+    const post = useSelector(state => selectAllPostsById(state, postId));
     const users = useSelector(state => state.users);
 
     const [title, setTitle] = React.useState(post.title);

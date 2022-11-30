@@ -3,14 +3,13 @@ import {Link} from "react-router-dom";
 import PostAuthor from "./PostAuthor";
 import TimeAgo from "./TimeAgo";
 import ReactionButtons from "./ReactionButtons";
+import {selectAllPostsById} from "./postsSlice";
 
 export default function SinglePostPage({match}) {
     const { postId } = match.params
 
     // Note: The component will re-render any time the value returned from useSelector changes to a new reference.
-    const post = useSelector(state =>
-        state.posts.find(post => post.id === postId)
-    );
+    const post = useSelector(state => selectAllPostsById(state, postId));
 
     if (!post) {
         return (
