@@ -72,8 +72,9 @@ const postsSlice = createSlice({
             })
             .addCase(fetchPosts.fulfilled, (state, action) => {
                 state.status = 'succeeded'
-                // Add any fetched posts to the array
-                state.posts = state.posts.concat(action.payload); // concat does not mutate!
+                /* Add any fetched posts to the array. Concat doesn't mutate, but we can still mutate here
+                while using Immer. */
+                state.posts = state.posts.concat(action.payload);
             })
             .addCase(fetchPosts.rejected, (state, action) => {
                 state.status = 'failed';
