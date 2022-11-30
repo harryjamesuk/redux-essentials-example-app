@@ -1,10 +1,23 @@
-import {createSlice, nanoid} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice, nanoid} from "@reduxjs/toolkit";
+import {client} from "../../api/client";
 
 const initialState = {
     posts: [],
     status: 'idle',
     error: null
 };
+
+/* First parameter is used as the prefix for the generation action types.
+* Second parameter is the "payload creator" that returns a Promise.
+* You can either return the Promise directly, or extract some data from the API
+* response and return that.
+*
+* Note that our thunk is created OUTSIDE the slice, therefore we must use
+* extraReducer's to handle reducer cases. */
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async() => {
+    const response = await client.get('/fakeApi/posts');
+    return response.data; // response object looks like {data: []}
+});
 
 const postsSlice = createSlice({
     name: 'posts',
@@ -51,6 +64,21 @@ const postsSlice = createSlice({
                 existingPost.reactions[reaction]++;
             }
         }
+    },
+    extraReducers(builder) {
+        builder
+            .addCase(fetchPosts.pending, (state, action) => {
+                state.status = 'loading'
+            })
+            .addCase(fetchPosts.fulfilled, (state, action) => {
+                state.status = 'succeeded'
+                // Add any fetched posts to the array
+                state.posts = state.posts.concat(action.payload); // concat does not mutate!
+            })
+            .addCase(fetchPosts.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
     }
 });
 
