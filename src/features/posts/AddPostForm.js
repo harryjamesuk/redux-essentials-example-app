@@ -13,6 +13,7 @@ export default function AddPostForm() {
 
     const onTitleChanged = e => setTitle(e.target.value);
     const onContentChanged = e => setContent(e.target.value);
+    const onAuthorChanged = e => setUserId(e.target.value);
 
     const onSavePostClicked = () => {
         if (title && content) {
@@ -42,7 +43,7 @@ export default function AddPostForm() {
                     onChange={onTitleChanged}
                 />
                 <label htmlFor='postAuthor'>Author:</label>
-                <select>
+                <select onChange={onAuthorChanged}>
                     <option value=''></option>
                     {userOptions}
                 </select>

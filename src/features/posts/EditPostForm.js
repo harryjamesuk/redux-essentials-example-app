@@ -3,7 +3,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {postUpdated} from "./postsSlice";
 import {nanoid} from "@reduxjs/toolkit";
 import {useHistory} from "react-router-dom/cjs/react-router-dom";
-import PostAuthor from "./PostAuthor";
 
 export default function EditPostForm({match}) {
     const { postId } = match.params;
