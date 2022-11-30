@@ -5,11 +5,15 @@ import TimeAgo from "./TimeAgo";
 
 export default function PostsList() {
     const posts = useSelector(state => state.posts);
+    // We must use .slice() to generate a copy, so we don't cause a direct mutation:
+    const orderedPosts = posts.slice().sort((a, b) =>
+        b.date.localeCompare(a.date)
+    );
 
-    const renderedPosts = posts.map(post => (
+    const renderedPosts = orderedPosts.map(post => (
         <article className="post-excerpt" key={post.id}>
             <h3>{post.title}</h3>
-            { post.date && <TimeAgo timestamp={post.date}/> }
+            <TimeAgo timestamp={post.date}/>
             <p className="post-content">{post.content.substring(0, 100)}</p>
             <PostAuthor userId={post.user}/>
             <Link to={`/posts/${post.id}`} className='button muted-button'>
